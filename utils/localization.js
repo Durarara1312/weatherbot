@@ -25,14 +25,30 @@ module.exports = {
                     console.warn(`Ключ "${key}" не найден для языка "${userLanguage}". Используется текст по умолчанию.`);
                     return resolve(this.getDefaultText(key)); // Возвращаем текст по умолчанию
                 }
-
                 // Замена плейсхолдеров
                 let text = localizedText;
                 for (const [placeholder, value] of Object.entries(params)) {
                     text = text.replace(new RegExp(`{${placeholder}}`, 'g'), value);
                 }
-
                 resolve(text);
+            });
+        });
+    },
+
+    /**
+     * Получить язык пользователя
+     * @param {number} chatId - ID пользователя Telegram
+     * @returns {Promise<string>} - Код языка ('en' или 'ru')
+     */
+    getUserLanguage(chatId) {
+        return new Promise((resolve, reject) => {
+            require('../database').getUserLanguage(chatId, (err, row) => {
+                if (err) {
+                    console.error(`Ошибка при получении языка для chatId ${chatId}:`, err.message);
+                    return resolve('en'); // Возвращаем язык по умолчанию — английский
+                }
+                const userLanguage = row?.language || 'en'; // Язык по умолчанию — английский
+                resolve(userLanguage);
             });
         });
     },

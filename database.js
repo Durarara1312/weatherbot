@@ -101,7 +101,7 @@ module.exports = {
      * @param {function} callback - Callback-функция
      */
     getUsersWithScheduledTime(callback) {
-        db.all("SELECT * FROM subscriptions WHERE time IS NOT NULL", callback);
+        db.all("SELECT * FROM subscriptions WHERE time IS NOT NULL AND status = 'active' AND city IS NOT NULL", callback);
     },
 
     /**

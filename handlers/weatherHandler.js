@@ -3,6 +3,7 @@ const { formatWeatherMessage } = require('../utils/formatting');
 const database = require('../database');
 const localization = require('../utils/localization');
 const axios = require('axios');
+const models = require('../models');
 
 module.exports = {
     /**
@@ -15,7 +16,7 @@ module.exports = {
     
         // Логируем chatId для отладки
         // Получаем город из базы данных
-        database.getCityByChatId(chatId, async (err, row) => {
+        models.Subscription.getCityByChatId(chatId, async (err, row) => {
             if (err) {
                 console.error("Ошибка при получении города:", err.message);
                 bot.sendMessage(chatId, "❌ Произошла ошибка при получении города.");
@@ -77,7 +78,7 @@ module.exports = {
                     bot.sendMessage(chatId, message, { parse_mode: "Markdown" });
 
                     // Логируем погодные данные
-                    database.logWeatherData(
+                    models.WeatherHistory.logWeatherData(
                         chatId,
                         city,
                         weatherData.temperature,

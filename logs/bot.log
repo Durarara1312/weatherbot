@@ -1,0 +1,9 @@
+[ERROR] 2025-02-05T22:24:18.517Z - Тестовая ошибка
+[ERROR] 2025-02-05T23:40:11.266Z - Необработанная ошибка Promise: ReferenceError: userStates is not defined: undefined
+[ERROR] 2025-02-05T23:46:03.359Z - Необработанная ошибка Promise: ReferenceError: userStates is not defined: undefined
+[ERROR] 2025-02-05T23:47:52.861Z - Необработанная ошибка Promise: ReferenceError: userStates is not defined: undefined
+[ERROR] 2025-02-05T23:56:03.134Z - Необработанная ошибка Promise: ReferenceError: originalDescription is not defined: undefined
+[ERROR] 2025-02-06T00:03:15.574Z - Необработанная ошибка Promise: ReferenceError: originalDescription is not defined: undefined
+[ERROR] 2025-02-06T00:09:30.378Z - Необработанная ошибка Promise: TypeError: localization.getUserLanguage is not a function: undefined
+[ERROR] 2025-02-06T00:12:52.177Z - Необработанная ошибка Promise: ReferenceError: description is not defined: undefined
+[ERROR] 2025-02-06T00:13:09.688Z - Необработанная ошибка Promise: ReferenceError: formattedDescription is not defined: undefined

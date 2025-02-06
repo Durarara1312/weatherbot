@@ -46,6 +46,7 @@
     "subscription_status_active": "✅ Статус подписки: Активна",
     "subscription_status_inactive": "❌ Статус подписки: Неактивна",
     "resubscribe_success": "✅ Вы успешно возобновили подписку.",
+    "unsubscribe_success": "✅ Вы успешно отписались от рассылки погоды.",
     "already_subscribed": "ℹ️ Вы уже подписаны.",
     "city_change_success": "✅ Город успешно изменен на",
     "time_change_success": "✅ Время рассылки успешно изменено на",
@@ -74,10 +75,22 @@
         "few clouds": "малооблачно",
         "scattered clouds": "рассеянные облака",
         "broken clouds": "облачно с прояснениями",
+        "overcast clouds": "пасмурно",
         "shower rain": "ливень",
         "rain": "дождь",
         "thunderstorm": "гроза",
         "snow": "снег",
-        "mist": "туман"
+        "mist": "туман",
+        "light rain": "лёгкий дождь",
+        "moderate rain": "умеренный дождь",
+        "heavy rain": "сильный дождь",
+        "light snow": "лёгкий снег",
+        "heavy snow": "сильный снег",
+        "fog": "туман",
+        "haze": "дымка",
+        "smoke": "дым",
+        "sand": "песок",
+        "dust": "пыль",
+        "tornado": "торнадо"
     }
 }

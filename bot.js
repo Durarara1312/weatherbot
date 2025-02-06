@@ -8,6 +8,12 @@ const timeHandler = require('./handlers/timeHandler');
 const localization = require('./utils/localization');
 const cityHandler = require('./handlers/cityHandler');
 const subscriptionHandler = require('./handlers/subscriptionHandler');
+const logger = require('./utils/logger');
+const feedbackHandler = require('./handlers/feedbackHandler');
+const statsHandler = require('./handlers/statsHandler');
+
+// Состояния пользователей
+const userStates = {};
 
 // Инициализация бота
 const bot = new TelegramBot(config.TELEGRAM_BOT_TOKEN, { polling: true });
@@ -68,6 +74,12 @@ bot.on('callback_query', async (query) => {
         case 'unsubscribe':
             subscriptionHandler.handleUnsubscribe(bot, chatId);
             break;
+        case 'feedback':
+            await feedbackHandler.handleFeedbackAction(bot, chatId);
+            break;
+        case 'stats':
+            await statsHandler.handleStatsRequest(bot, chatId);
+            break;
         default:
             console.log("Неизвестный callback:", data);
     }
@@ -97,6 +109,10 @@ bot.on('message', async (msg) => {
             cityHandler.handleNewCity(bot, msg);
         }
     }
+    // Если пользователь находится в состоянии ожидания отзыва
+    if (userStates[chatId] === 'waiting_for_feedback') {
+        await feedbackHandler.handleFeedbackMessage(bot, msg);
+    }
 
 }),
 
@@ -104,3 +120,26 @@ bot.on('message', async (msg) => {
 setInterval(() => {
     weatherHandler.sendScheduledWeather(bot);
 }, 60000); // Проверяем каждую минуту
+
+
+// Обработка необработанных исключений
+process.on('uncaughtException', async (error) => {
+    console.error("Необработанное исключение:", error.message);
+    try {
+        await logger.error("Необработанное исключение", error); // Отправляем ошибку на логгер-бот
+    } catch (loggingError) {
+        console.error("Ошибка при отправке лога:", loggingError.message);
+    }
+    setTimeout(() => process.exit(1), 1000); // Даем время на отправку сообщения
+});
+// Обработка необработанных ошибок Promise
+process.on('unhandledRejection', async (reason, promise) => {
+    console.error("Необработанная ошибка Promise:", reason);
+    console.error("Promise details:", promise);
+    try {
+        await logger.error(`Необработанная ошибка Promise: ${reason}`, promise);
+    } catch (loggingError) {
+        console.error("Ошибка при отправке лога:", loggingError.message);
+    }
+    setTimeout(() => process.exit(1), 1000); // Даем время на отправку сообщения
+});

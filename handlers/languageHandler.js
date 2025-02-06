@@ -1,5 +1,6 @@
 const database = require('../database');
 const localization = require('../utils/localization');
+const models = require('../models');
 
 module.exports = {
     /**

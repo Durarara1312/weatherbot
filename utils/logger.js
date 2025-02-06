@@ -1,13 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const TelegramBot = require('node-telegram-bot-api');
+const axios = require('axios'); // Для отправки HTTP-запросов
 const config = require('../config');
 
 // Путь к файлу логов
 const LOG_FILE_PATH = path.join(__dirname, '../logs/bot.log');
-
-// Инициализация Telegram-бота для отправки логов
-const logBot = new TelegramBot(config.LOG_BOT_TOKEN);
 
 module.exports = {
     /**
@@ -28,7 +25,7 @@ module.exports = {
         const logMessage = `[WARN] ${new Date().toISOString()} - ${message}`;
         console.warn(logMessage); // Выводим в консоль
         this.writeToFile(logMessage); // Записываем в файл
-        this.sendToTelegram(logMessage); // Отправляем в Telegram
+        this.sendToLoggerBot(logMessage); // Отправляем на локальный сервер логгер-бота
     },
 
     /**
@@ -36,18 +33,18 @@ module.exports = {
      * @param {string} message - Сообщение для логирования
      * @param {Error} error - Объект ошибки (опционально)
      */
-    error(message, error) {
+    async error(message, error) {
         const errorMessage = error ? `${message}: ${error.message}` : message;
         const logMessage = `[ERROR] ${new Date().toISOString()} - ${errorMessage}`;
         console.error(logMessage); // Выводим в консоль
         this.writeToFile(logMessage); // Записываем в файл
-
+    
         if (error && error.stack) {
             console.error(error.stack); // Выводим стек вызовов
             this.writeToFile(`Stack trace: ${error.stack}`);
         }
-
-        this.sendToTelegram(logMessage); // Отправляем в Telegram
+    
+        await this.sendToLoggerBot(logMessage); // Отправляем на локальный сервер логгер-бота
     },
 
     /**
@@ -60,24 +57,20 @@ module.exports = {
         if (!fs.existsSync(logsDir)) {
             fs.mkdirSync(logsDir, { recursive: true });
         }
-
         // Добавляем сообщение в файл
         fs.appendFileSync(LOG_FILE_PATH, message + '\n', 'utf8');
     },
 
     /**
-     * Отправляет сообщение в Telegram-канал
+     * Отправляет сообщение на локальный сервер логгер-бота
      * @param {string} message - Сообщение для отправки
      */
-    sendToTelegram(message) {
-        if (!config.LOG_CHANNEL_ID) {
-            console.warn("LOG_CHANNEL_ID не указан в конфигурации. Логи не отправлены в Telegram.");
-            return;
+    async sendToLoggerBot(message) {
+        try {
+            await axios.post('http://localhost:3001/log', { message });
+            console.log("Сообщение успешно отправлено логгер-боту.");
+        } catch (err) {
+            console.error("Не удалось отправить сообщение логгер-боту:", err.message);
         }
-
-        logBot.sendMessage(config.LOG_CHANNEL_ID, message, { parse_mode: "Markdown" })
-            .catch((err) => {
-                console.error("Ошибка при отправке лога в Telegram:", err.message);
-            });
     }
 };

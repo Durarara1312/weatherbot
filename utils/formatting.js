@@ -18,7 +18,7 @@ module.exports = {
 
         // Получаем локализованные описания погоды
         const localizedDescriptions = await localization.getLocaleText(chatId, 'weather_descriptions');
-        const localizedDescription = localizedDescriptions[weatherData.descriptionKey] || originalDescription;
+        const localizedDescription = localizedDescriptions[weatherData.descriptionKey] || weatherData.description;
 
         // Форматируем сообщение
         return template

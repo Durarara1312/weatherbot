@@ -47,6 +47,7 @@
     "unsubscribe_error": "❌ An error occurred while unsubscribing.",
     "subscription_status_active": "✅ Subscription status: Active",
     "subscription_status_inactive": "❌ Subscription status: Inactive",
+    "unsubscribe_success": "✅ You have successfully unsubscribed from weather updates.",
     "resubscribe_success": "✅ You have successfully resumed your subscription.",
     "already_subscribed": "ℹ️ You are already subscribed.",
     "feedback_prompt": "📝 Please share your feedback:",
@@ -74,11 +75,23 @@
         "few clouds": "few clouds",
         "scattered clouds": "scattered clouds",
         "broken clouds": "broken clouds",
+        "overcast clouds": "overcast clouds",
         "shower rain": "shower rain",
         "rain": "rain",
         "thunderstorm": "thunderstorm",
         "snow": "snow",
-        "mist": "fog"
+        "mist": "mist",
+        "light rain": "light rain",
+        "moderate rain": "moderate rain",
+        "heavy rain": "heavy rain",
+        "light snow": "light snow",
+        "heavy snow": "heavy snow",
+        "fog": "fog",
+        "haze": "haze",
+        "smoke": "smoke",
+        "sand": "sand",
+        "dust": "dust",
+        "tornado": "tornado"
     }
     
 }

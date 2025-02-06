@@ -2,6 +2,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const database = require('../database');
 const localization = require('../utils/localization');
 const cityHandler = require('./cityHandler');
+const logger = require('../utils/logger');
+const models = require('../models');
 
 // Хранилище ID последних сообщений меню для каждого пользователя
 const lastMenuMessageId = {};
@@ -98,7 +100,7 @@ async getSubscriptionKeyboard(chatId, status) {
                 status === 'active'
                     ? [{ text: unsubscribeButton, callback_data: 'unsubscribe' }]
                     : [{ text: subscribeButton, callback_data: 'subscribe' }],
-                [{ text: backToMenuButton, callback_data: 'main_menu' }]
+                      [{ text: backToMenuButton, callback_data: 'back_to_main_menu' }]
             ]
         }
     };
@@ -135,7 +137,7 @@ async getSubscriptionKeyboard(chatId, status) {
         const currentWeatherButton = await localization.getLocaleText(chatId, 'current_weather_button');
         const statsButton = await localization.getLocaleText(chatId, 'stats_button');
         const feedbackButton = await localization.getLocaleText(chatId, 'feedback_button');
-        const backButton = await localization.getLocaleText(chatId, 'back_to_main_menu');
+        const backButton = await localization.getLocaleText(chatId, 'back_to_main_menu_button');
 
         return {
             reply_markup: {
