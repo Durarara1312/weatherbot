@@ -96,7 +96,7 @@ bot.onText(/\/settings/, (msg) => {
             inline_keyboard: [
                 [{
                     text: 'Открыть мини-приложение',
-                    web_app: { url: 'https://username.github.io/repository-name/' } // Замените на вашу ссылку
+                    web_app: { url: 'https://durarara1312.github.io/weatherbot/' } // Замените на вашу ссылку
                 }]
             ]
         }
