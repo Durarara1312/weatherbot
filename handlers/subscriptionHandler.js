@@ -4,102 +4,123 @@ const models = require('../models');
 
 module.exports = {
     /**
-     * Обрабатывает подписку пользователя
-     * @param {TelegramBot} bot - Экземпляр Telegram-бота
-     * @param {number} chatId - ID чата пользователя
-     */
-    async handleSubscribe(bot, chatId) {
-        // Проверяем, есть ли уже подписка
-        database.getSubscription(chatId, async (err, row) => {
-            if (err) {
-                console.error(err.message);
-                const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
-                bot.sendMessage(chatId, errorMessage);
-                return;
-            }
+ * Обрабатывает подписку пользователя
+ * @param {TelegramBot} bot - Экземпляр Telegram-бота
+ * @param {number} chatId - ID чата пользователя
+ */
+async handleSubscribe(bot, chatId) {
+    // Проверяем, есть ли уже подписка
+    database.getSubscription(chatId, async (err, row) => {
+        if (err) {
+            console.error(err.message);
+            const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
+            bot.sendMessage(chatId, errorMessage);
+            return;
+        }
 
-            if (row && row.status === 'active') {
-                const alreadySubscribedMessage = await localization.getLocaleText(chatId, 'already_subscribed');
-                bot.sendMessage(chatId, alreadySubscribedMessage);
-                return;
-            }
+        if (row && row.status === 'active') {
+            const alreadySubscribedMessage = await localization.getLocaleText(chatId, 'already_subscribed');
+            bot.sendMessage(chatId, alreadySubscribedMessage);
+            return;
+        }
 
-            // Если подписка неактивна, активируем её
-            if (row && row.status === 'inactive') {
-                database.updateSubscriptionStatus(chatId, 'active', async (err) => {
-                    if (err) {
-                        console.error(err.message);
-                        const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
-                        bot.sendMessage(chatId, errorMessage);
-                        return;
-                    }
-                    const successMessage = await localization.getLocaleText(chatId, 'resubscribe_success');
-                    bot.sendMessage(chatId, successMessage);
+        // Если подписка неактивна, активируем её
+        if (row && row.status === 'inactive') {
+            database.updateSubscriptionStatus(chatId, 'active', async (err) => {
+                if (err) {
+                    console.error(err.message);
+                    const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
+                    bot.sendMessage(chatId, errorMessage);
+                    return;
+                }
+                const successMessage = await localization.getLocaleText(chatId, 'resubscribe_success');
+                bot.sendMessage(chatId, successMessage);
 
-                    // Отправляем главное меню
-                    const menuHandler = require('./menuHandler');
-                    menuHandler.sendMainMenu(bot, chatId);
-                });
-                return;
-            }
+                // Отправляем главное меню
+                const menuHandler = require('./menuHandler');
+                menuHandler.sendMainMenu(bot, chatId);
+            });
+            return;
+        }
 
-            // Если подписки нет, запрашиваем город и время
-            const cityPrompt = await localization.getLocaleText(chatId, 'enter_city_prompt');
-            bot.sendMessage(chatId, cityPrompt, { reply_markup: { force_reply: true } });
+        // Если подписки нет, запрашиваем город и время
+        const cityPrompt = await localization.getLocaleText(chatId, 'enter_city_prompt');
+        bot.sendMessage(chatId, cityPrompt, { reply_markup: { force_reply: true } });
 
-            // Обработка ответа пользователя (город)
-            bot.once('message', async (cityMsg) => {
-                if (cityMsg.reply_to_message && cityMsg.reply_to_message.text === cityPrompt) {
-                    const city = cityMsg.text;
+        // Обработка ответа пользователя (город)
+        bot.once('message', async (cityMsg) => {
+            if (cityMsg.reply_to_message && cityMsg.reply_to_message.text === cityPrompt) {
+                const city = cityMsg.text;
 
-                    // Запрашиваем время
-                    const timePrompt = await localization.getLocaleText(chatId, 'enter_time_prompt');
-                    bot.sendMessage(chatId, timePrompt, { reply_markup: { force_reply: true } });
+                // Запрашиваем время
+                const timePrompt = await localization.getLocaleText(chatId, 'enter_time_prompt');
+                bot.sendMessage(chatId, timePrompt, { reply_markup: { force_reply: true } });
 
-                    // Обработка ответа пользователя (время)
-                    bot.once('message', async (timeMsg) => {
-                        if (timeMsg.reply_to_message && timeMsg.reply_to_message.text === timePrompt) {
-                            const time = timeMsg.text;
+                // Обработка ответа пользователя (время)
+                bot.once('message', async (timeMsg) => {
+                    if (timeMsg.reply_to_message && timeMsg.reply_to_message.text === timePrompt) {
+                        const time = timeMsg.text;
 
-                            // Проверка формата времени (HH:MM)
-                            const timeRegex = /^([01]?\d|2[0-3]):([0-5]?\d)$/;
-                            if (!timeRegex.test(time)) {
-                                const invalidTimeError = await localization.getLocaleText(chatId, 'invalid_time_format_error');
-                                bot.sendMessage(chatId, `${invalidTimeError} HH:MM`);
-                                return;
-                            }
+                        // Проверка формата времени (HH:MM)
+                        const timeRegex = /^([01]?\d|2[0-3]):([0-5]?\d)$/;
+                        if (!timeRegex.test(time)) {
+                            const invalidTimeError = await localization.getLocaleText(chatId, 'invalid_time_format_error');
+                            bot.sendMessage(chatId, `${invalidTimeError} HH:MM`);
+                            return;
+                        }
 
-                            // Сохраняем подписку в базе данных
-                            database.upsertSubscription(chatId, city, 'en', time, async (err) => {
+                        try {
+                            // Сохраняем город в базе данных
+                            database.updateCity(chatId, city, async (err) => {
                                 if (err) {
-                                    console.error(err.message);
+                                    console.error(`Ошибка при сохранении города для chatId ${chatId}:`, err.message);
                                     const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
                                     bot.sendMessage(chatId, errorMessage);
                                     return;
                                 }
-                                const successMessage = await localization.getLocaleText(chatId, 'subscription_success');
-                                bot.sendMessage(chatId, `${successMessage} ${city}, ${time}`);
 
-                                // Активируем подписку
-                                database.updateSubscriptionStatus(chatId, 'active', async (err) => {
+                                console.log(`[DEBUG] Город успешно сохранён для chatId ${chatId}`);
+
+                                // Сохраняем время в базе данных
+                                database.updateTime(chatId, time, async (err) => {
                                     if (err) {
-                                        console.error(err.message);
+                                        console.error(`Ошибка при сохранении времени для chatId ${chatId}:`, err.message);
                                         const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
                                         bot.sendMessage(chatId, errorMessage);
                                         return;
                                     }
 
-                                    // Отправляем главное меню
-                                    const menuHandler = require('./menuHandler');
-                                    menuHandler.sendMainMenu(bot, chatId);
+                                    console.log(`[DEBUG] Время успешно сохранено для chatId ${chatId}`);
+
+                                    const successMessage = await localization.getLocaleText(chatId, 'subscription_success');
+                                    bot.sendMessage(chatId, `${successMessage} ${city}, ${time}`);
+
+                                    // Активируем подписку
+                                    database.updateSubscriptionStatus(chatId, 'active', async (err) => {
+                                        if (err) {
+                                            console.error(err.message);
+                                            const errorMessage = await localization.getLocaleText(chatId, 'subscription_error');
+                                            bot.sendMessage(chatId, errorMessage);
+                                            return;
+                                        }
+
+                                        // Отправляем главное меню
+                                        const menuHandler = require('./menuHandler');
+                                        menuHandler.sendMainMenu(bot, chatId);
+                                    });
                                 });
                             });
+                        } catch (error) {
+                            console.error(`Неожиданная ошибка при обработке подписки для chatId ${chatId}:`, error.message);
+                            const errorMessage = await localization.getLocaleText(chatId, 'general_error');
+                            bot.sendMessage(chatId, errorMessage);
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
         });
-    },
+    });
+},
 
     /**
      * Обрабатывает отписку пользователя

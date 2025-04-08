@@ -1,6 +1,6 @@
 const database = require('../database');
 const localization = require('../utils/localization');
-const models = require('../models');
+const menuHandler = require('./menuHandler');
 
 module.exports = {
     /**
@@ -13,8 +13,11 @@ module.exports = {
         const keyboard = {
             reply_markup: {
                 inline_keyboard: [
-                    [{ text: 'Русский', callback_data: 'set_language_ru' }],
-                    [{ text: 'English', callback_data: 'set_language_en' }]
+                    [{ text: 'Русский 🇷🇺', callback_data: 'set_language_ru' }],
+                    [{ text: 'English 🇬🇧', callback_data: 'set_language_en' }],
+                    [{ text: 'Español 🇪🇸', callback_data: 'set_language_es' }],
+                    [{ text: 'Français 🇫🇷', callback_data: 'set_language_fr' }],
+                    [{ text: 'Deutsch 🇩🇪', callback_data: 'set_language_de' }]
                 ]
             }
         };
@@ -25,12 +28,14 @@ module.exports = {
      * Обрабатывает установку языка
      * @param {TelegramBot} bot - Экземпляр Telegram-бота
      * @param {Object} query - CallbackQuery от Telegram
-     * @param {string} language - Код языка ('ru' или 'en')
+     * @param {string} language - Код языка ('ru', 'en', 'es', 'fr', 'de')
      */
     handleSetLanguage(bot, query, language) {
         const chatId = query.message.chat.id;
-        const successMessageKey = language === 'ru' ? 'language_changed_ru' : 'language_changed_en';
-        const errorMessageKey = language === 'ru' ? 'language_change_error_ru' : 'language_change_error_en';
+
+        // Определяем ключи для успешного сообщения и ошибки
+        const successMessageKey = `language_changed_${language}`;
+        const errorMessageKey = `language_change_error_${language}`;
 
         database.setUserLanguage(chatId, language, async (err) => {
             if (err) {
@@ -39,13 +44,14 @@ module.exports = {
                 bot.sendMessage(chatId, errorMessage);
                 return;
             }
+
             const successMessage = await localization.getLocaleText(chatId, successMessageKey);
             bot.sendMessage(chatId, successMessage);
 
             // Отправляем главное меню после изменения языка
-            const menuHandler = require('./menuHandler');
             const keyboard = await menuHandler.getMainMenuKeyboard(chatId);
-            bot.sendMessage(chatId, await localization.getLocaleText(chatId, 'main_menu_message'), keyboard);
+            const mainMenuMessage = await localization.getLocaleText(chatId, 'main_menu_message');
+            bot.sendMessage(chatId, mainMenuMessage, keyboard);
         });
     }
 };

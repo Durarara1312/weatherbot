@@ -12,19 +12,16 @@ module.exports = {
         try {
             // Получаем данные подписки пользователя
             const subscriptionRow = await this.getSubscription(chatId);
-
             // Получаем статистику использования бота
             const statsRow = await this.getUserStats(chatId);
-
             // Получаем историю погоды за последние 30 дней
             const weatherRows = await this.getWeatherHistory(chatId);
 
-            // Формируем сообщение со статистикой
             let message = "";
 
             // Добавляем информацию о подписке
             if (subscriptionRow) {
-                const subscriptionStartDate = new Date(subscriptionRow.subscription_start); // Преобразуем строку в объект Date
+                const subscriptionStartDate = new Date(subscriptionRow.subscription_start);
                 const now = new Date();
                 const weeksActive = Math.floor((now - subscriptionStartDate) / (1000 * 60 * 60 * 24 * 7));
                 const subscriptionActiveText = await localization.getLocaleText(chatId, 'subscription_active_since');
@@ -36,9 +33,7 @@ module.exports = {
                 const usageStatsText = await localization.getLocaleText(chatId, 'usage_stats');
                 message += `\n${usageStatsText}\n` +
                     `• ${await localization.getLocaleText(chatId, 'total_requests')}: ${statsRow.total_requests}\n` +
-                    `• ${await localization.getLocaleText(chatId, 'weather_requests')}: ${statsRow.weather_requests}\n` +
-                    `• ${await localization.getLocaleText(chatId, 'city_changes')}: ${statsRow.city_changes}\n` +
-                    `• ${await localization.getLocaleText(chatId, 'time_changes')}: ${statsRow.time_changes}\n`;
+                    `• ${await localization.getLocaleText(chatId, 'weather_requests')}: ${statsRow.weather_requests}\n`;
             }
 
             // Добавляем статистику погоды
@@ -47,8 +42,16 @@ module.exports = {
                 const avgTemperature = temperatures.reduce((sum, temp) => sum + temp, 0) / temperatures.length || 0;
                 const maxTemperature = Math.max(...temperatures) || 0;
                 const minTemperature = Math.min(...temperatures) || 0;
-                const rainyDays = weatherRows.filter(row => row.description.toLowerCase().includes('rain')).length;
-                const sunnyDays = weatherRows.filter(row => row.description.toLowerCase().includes('clear')).length;
+
+                const rainyDays = weatherRows.filter(row =>
+                    row.description.toLowerCase().includes('rain') ||
+                    row.description.toLowerCase().includes('drizzle')
+                ).length;
+
+                const sunnyDays = weatherRows.filter(row =>
+                    row.description.toLowerCase().includes('clear') ||
+                    row.description.toLowerCase().includes('few clouds')
+                ).length;
 
                 const weatherStatsText = await localization.getLocaleText(chatId, 'weather_stats');
                 message += `\n${weatherStatsText}\n` +
@@ -86,7 +89,7 @@ module.exports = {
      */
     getSubscription(chatId) {
         return new Promise((resolve, reject) => {
-            database.getSubscription(chatId, (err, row) => {
+            database.get("SELECT * FROM subscriptions WHERE chat_id = ?", [chatId], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -120,13 +123,17 @@ module.exports = {
      */
     getWeatherHistory(chatId) {
         return new Promise((resolve, reject) => {
-            database.all("SELECT * FROM weather_history WHERE chat_id = ? AND date >= date('now', '-30 days')", [chatId], (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
+            database.all(
+                "SELECT * FROM weather_history WHERE chat_id = ? AND date >= date('now', '-30 days')",
+                [chatId],
+                (err, rows) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(rows);
+                    }
                 }
-            });
+            );
         });
     }
 };

@@ -9,20 +9,76 @@ const localization = require('./utils/localization');
 const cityHandler = require('./handlers/cityHandler');
 const subscriptionHandler = require('./handlers/subscriptionHandler');
 const logger = require('./utils/logger');
-const feedbackHandler = require('./handlers/feedbackHandler');
 const statsHandler = require('./handlers/statsHandler');
+const feedbackHandler = require('./handlers/feedbackHandler');
+const database = require('./database');
+const unitsHandler = require('./handlers/unitsHandler.js');
+const usersManager = require('./usersManager');
 
 // Состояния пользователей
 const userStates = {};
 
 // Инициализация бота
 const bot = new TelegramBot(config.TELEGRAM_BOT_TOKEN, { polling: true });
+
+bot.on('polling_error', (error) => {
+    console.error("Ошибка при подключении к Telegram API:", error.message);
+});
+
 console.log("Бот запущен!");
 
 // Обработка команды /start
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
-    menuHandler.sendMainMenu(bot, chatId);
+    const username = msg.from.username || null; // Username пользователя (если есть)
+    const firstName = msg.from.first_name || 'Не указано';
+    const lastName = msg.from.last_name || 'Не указано';
+
+    console.log(`[DEBUG] Пользователь запустил бота: chatId ${chatId}, username ${username}`);
+    try {
+        // Проверяем, существует ли пользователь в базе данных
+        const userExists = await new Promise((resolve, reject) => {
+            database.getSubscription(chatId, (err, subscription) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(!!subscription); // true, если пользователь существует, иначе false
+                }
+            });
+        });
+
+        // Если пользователь новый, отправляем уведомление через логгер
+        if (!userExists) {
+            console.log(`[DEBUG] Новый пользователь: chatId ${chatId}, username ${username}`);
+            logger.logNewUser({
+                chatId,
+                username,
+                firstName,
+                lastName
+            });
+        }
+
+        // Добавляем или обновляем пользователя в таблице subscriptions
+        database.upsertUser(chatId, username, (err) => {
+            if (err) {
+                console.error(`Ошибка при добавлении/обновлении пользователя chatId ${chatId}:`, err.message);
+                bot.sendMessage(chatId, "Произошла ошибка. Попробуйте позже.");
+                return;
+            }
+            console.log(`[DEBUG] Пользователь успешно добавлен/обновлён в базе данных: chatId ${chatId}`);
+        });
+
+        // Отправляем приветственное сообщение
+        const welcomeMessage = (await localization.getLocaleText(chatId, 'welcome_message')) || "Welcome!";
+        const welcomeMessage2 = (await localization.getLocaleText(chatId, 'welcome_message2')) || "Use /start to begin.";
+        bot.sendMessage(chatId, `${welcomeMessage}, ${firstName}!\n${welcomeMessage2}`);
+
+        // Отправляем главное меню
+        menuHandler.sendMainMenu(bot, chatId);
+    } catch (error) {
+        console.error("Ошибка при обработке команды /start:", error.message);
+        bot.sendMessage(chatId, "Произошла ошибка. Попробуйте позже.");
+    }
 });
 
 // Обработка команды /userstats (только для администратора)
@@ -30,22 +86,49 @@ bot.onText(/\/userstats/, (msg) => {
     adminHandler.handleStatsCommand(bot, msg);
 });
 
-// Обработка команды /broadcast (только для администратора)
-bot.onText(/\/broadcast/, (msg) => {
-    adminHandler.handleBroadcastCommand(bot, msg);
-});
 
 // Обработка callback-запросов
 bot.on('callback_query', async (query) => {
-    const chatId = query.message.chat.id;
+
+    let chatId;
+    if (query.message && query.message.chat && query.message.chat.id) {
+        chatId = query.message.chat.id;
+    } else if (query.from && query.from.id) {
+        chatId = query.from.id;
+    } else {
+        console.error("[ERROR] Не удалось определить chatId из query:", JSON.stringify(query, null, 2));
+        return; // Завершаем выполнение функции
+    }
+
+    // Проверяем, что query.data существует
+    if (!query.data) {
+        console.error("[ERROR] query.data не определён:", query);
+        return;
+    }
+
     const data = query.data;
 
     switch (data) {
-        case 'subscription_menu':
+        case 'manage_subscription':
             menuHandler.sendSubscriptionMenu(bot, chatId);
             break;
         case 'actions_menu':
             menuHandler.sendActionsMenu(bot, chatId);
+            break;
+        case 'profile_menu':
+            menuHandler.sendProfileMenu(bot, chatId);
+            break;
+        case 'units_settings_menu':
+            menuHandler.sendUnitsSettingsMenu(bot, chatId);
+            break;
+        case 'temperature_units_menu':
+            menuHandler.sendTemperatureUnitsMenu(bot,chatId);
+            break;
+        case 'pressure_units_menu':
+            menuHandler.sendPressureUnitsMenu(bot,chatId);
+            break;
+        case 'wind_speed_units_menu':
+            menuHandler.sendWindSpeedUnitsMenu(bot, chatId);
             break;
         case 'change_language':
             languageHandler.sendLanguageMenu(bot, chatId);
@@ -55,6 +138,15 @@ bot.on('callback_query', async (query) => {
             break;
         case 'set_language_en':
             languageHandler.handleSetLanguage(bot, query, 'en');
+            break;
+        case 'set_language_es':
+            languageHandler.handleSetLanguage(bot, query, 'es');
+            break;
+        case 'set_language_fr':
+            languageHandler.handleSetLanguage(bot, query, 'fr');
+            break;
+        case 'set_language_de':
+            languageHandler.handleSetLanguage(bot, query, 'de');
             break;
         case 'back_to_main_menu':
             menuHandler.sendMainMenu(bot, chatId);
@@ -80,6 +172,68 @@ bot.on('callback_query', async (query) => {
         case 'stats':
             await statsHandler.handleStatsRequest(bot, chatId);
             break;
+        case 'set_temperature_celsius':
+            unitsHandler.handleSetTemperatureUnit(bot, chatId, 'celsius');
+            break;
+        case 'set_temperature_fahrenheit':
+            unitsHandler.handleSetTemperatureUnit(bot, chatId, 'fahrenheit');
+            break;
+        case 'set_temperature_kelvin':
+            unitsHandler.handleSetTemperatureUnit(bot, chatId, 'kelvin');
+            break;
+        case 'set_pressure_mmhg':
+            unitsHandler.handleSetPressureUnit(bot, chatId, 'mmhg');
+            break;
+        case 'set_pressure_hpa':
+            unitsHandler.handleSetPressureUnit(bot, chatId, 'hpa');
+            break;
+        case 'set_pressure_psi':
+            unitsHandler.handleSetPressureUnit(bot, chatId, 'psi');
+            break;
+        case 'set_wind_speed_ms':
+            unitsHandler.handleSetWindSpeedUnit(bot, chatId, 'ms');
+            break;
+        case 'set_wind_speed_kmh':
+            unitsHandler.handleSetWindSpeedUnit(bot, chatId, 'kmh');
+            break;
+        case 'admin_panel':
+            // Проверяем, что запрос отправлен администратором
+            if (chatId !== config.ADMIN_CHAT_ID) {
+                bot.sendMessage(chatId, "❌ Эта функция доступна только администратору.");
+                return;
+            }
+            menuHandler.sendAdminPanel(bot, chatId);
+            break;
+        case 'admin_users_list':
+            // Проверяем, что запрос отправлен администратором
+            if (chatId !== config.ADMIN_CHAT_ID) {
+                bot.sendMessage(chatId, "❌ Эта функция доступна только администратору.");
+                return;
+            }
+            adminHandler.sendUsersList(bot, chatId);
+            break;
+        case 'admin_export_users':
+            // Проверяем, что запрос отправлен администратором
+            if (chatId !== config.ADMIN_CHAT_ID) {
+                bot.sendMessage(chatId, "❌ Эта функция доступна только администратору.");
+                return;
+            }
+            adminHandler.exportUsersToCSV(bot, chatId);
+            break;
+        case 'admin_filter_users':
+            // Проверяем, что запрос отправлен администратором
+            if (chatId !== config.ADMIN_CHAT_ID) {
+            bot.sendMessage(chatId, "❌ Эта функция доступна только администратору.");
+                return;
+            }
+            bot.sendMessage(chatId, "Введите параметры фильтрации в формате: city=Москва&status=active");
+            break;
+        case 'weather_3h':
+        case 'weather_6h':
+        case 'weather_12h':
+            const hours = parseInt(data.split('_')[1]); // Извлекаем количество часов (3, 6 или 12)
+            weatherHandler.handleFutureWeather(bot, query, hours);
+            break;
         default:
             console.log("Неизвестный callback:", data);
     }
@@ -91,33 +245,45 @@ bot.on('callback_query', async (query) => {
 // Обработка текстовых сообщений
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
+    const text = msg.text;
+
+    // Получаем состояние пользователя
+    database.getState(chatId, async (err, row) => {
+        if (err) {
+            console.error(`Ошибка при получении состояния для chatId ${chatId}:`, err.message);
+            return;
+        }
+
+        const currentState = row?.state;
+        // Если пользователь находится в состоянии ожидания отзыва
+        if (currentState === 'waiting_for_feedback') {
+            await feedbackHandler.handleFeedbackMessage(bot, msg);
+            return; // Завершаем обработку
+        }
 
     // Если это ответ на запрос времени
     if (msg.reply_to_message) {
         const replyText = msg.reply_to_message.text;
+
         const enterNewTimePrompt = await localization.getLocaleText(chatId, 'enter_time_prompt');
-        
         if (replyText === enterNewTimePrompt) {
             timeHandler.handleNewTime(bot, msg);
+            return; // Завершаем обработку
         }
-    }
-    if (msg.reply_to_message) {
-        const replyText = msg.reply_to_message.text;
-        const enterCityPrompt = await localization.getLocaleText(chatId, 'enter_city_prompt');
 
+        const enterCityPrompt = await localization.getLocaleText(chatId, 'enter_city_prompt');
         if (replyText === enterCityPrompt) {
             cityHandler.handleNewCity(bot, msg);
+            return; // Завершаем обработку
         }
     }
-    // Если пользователь находится в состоянии ожидания отзыва
-    if (userStates[chatId] === 'waiting_for_feedback') {
-        await feedbackHandler.handleFeedbackMessage(bot, msg);
-    }
+})
 
-}),
+});
 
 // Рассылка погоды по подписке
 setInterval(() => {
+   // console.log('[NEW BOT] Проверка времени для отправки погоды...');
     weatherHandler.sendScheduledWeather(bot);
 }, 60000); // Проверяем каждую минуту
 

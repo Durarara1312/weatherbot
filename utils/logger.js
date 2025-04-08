@@ -48,6 +48,40 @@ module.exports = {
     },
 
     /**
+     * Логирует информацию о новом пользователе
+     * @param {Object} userData - Данные пользователя
+     * @param {number} userData.chatId - ID пользователя Telegram
+     * @param {string} userData.username - Username пользователя (если есть)
+     * @param {string} userData.firstName - Имя пользователя
+     * @param {string} userData.lastName - Фамилия пользователя
+     */
+    async logNewUser(userData) {
+        const { chatId, username, firstName, lastName } = userData;
+
+        // Формируем сообщение о новом пользователе
+        const newUserMessage = `Новый пользователь!\nChat ID: ${chatId}\nUsername: @${username || 'не указан'}\nИмя: ${firstName}\nФамилия: ${lastName}`;
+
+        // Логируем в консоль и файл
+        const logMessage = `[NEW_USER] ${new Date().toISOString()} - ${newUserMessage}`;
+        console.log(logMessage);
+        this.writeToFile(logMessage);
+
+        // Отправляем сообщение на логгер-сервер
+        try {
+            await axios.post('http://localhost:3001/new-user', {
+                chatId,
+                username,
+                firstName,
+                lastName
+            });
+
+            console.log("Сообщение о новом пользователе успешно отправлено на логгер-сервер.");
+        } catch (err) {
+            console.error("Не удалось отправить сообщение о новом пользователе на логгер-сервер:", err.message);
+        }
+    },
+
+    /**
      * Записывает сообщение в файл логов
      * @param {string} message - Сообщение для записи
      */

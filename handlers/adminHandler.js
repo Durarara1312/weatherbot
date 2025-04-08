@@ -2,6 +2,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const database = require('../database');
 const localization = require('../utils/localization');
 const models = require('../models');
+const usersManager = require('../usersManager');
+const config = require('../config');
 
 module.exports = {
     /**
@@ -12,6 +14,69 @@ module.exports = {
     async isAdmin(chatId) {
         const adminChatId = process.env.ADMIN_CHAT_ID || require('../config').ADMIN_CHAT_ID;
         return chatId == adminChatId; // Сравниваем ID пользователя с ID администратора
+    },
+
+    async sendUsersList(bot, chatId) {
+        if (chatId !== config.ADMIN_CHAT_ID) {
+            bot.sendMessage(chatId, "❌ Эта команда доступна только администратору.");
+            return;
+        }
+        usersManager.sendUsersList(bot, chatId);
+    },
+
+    /**
+     * Экспортирует список пользователей в CSV-файл
+     * @param {TelegramBot} bot - Экземпляр Telegram-бота
+     * @param {number} chatId - ID чата администратора
+     */
+    async exportUsersToCSV(bot, chatId) {
+        if (chatId !== config.ADMIN_CHAT_ID) {
+            bot.sendMessage(chatId, "❌ Эта команда доступна только администратору.");
+            return;
+        }
+        usersManager.exportUsersToCSV(bot, chatId);
+    },
+
+    /**
+     * Фильтрует пользователей по заданным параметрам
+     * @param {TelegramBot} bot - Экземпляр Telegram-бота
+     * @param {number} chatId - ID чата администратора
+     * @param {string} filterParams - Параметры фильтрации (например, "city=Москва&status=active")
+     */
+    async filterUsers(bot, chatId, filterParams) {
+        if (chatId !== config.ADMIN_CHAT_ID) {
+            bot.sendMessage(chatId, "❌ Эта команда доступна только администратору.");
+            return;
+        }
+        usersManager.filterUsers(bot, chatId, filterParams);
+    },
+
+    /**
+     * Обрабатывает callback-запросы для админ-панели
+     * @param {TelegramBot} bot - Экземпляр Telegram-бота
+     * @param {Object} query - CallbackQuery объект
+     */
+    handleAdminPanel(bot, query) {
+        const chatId = query.message.chat.id;
+        const data = query.data;
+
+        switch (data) {
+            case 'admin_users_list':
+                this.sendUsersList(bot, chatId);
+                break;
+
+            case 'admin_export_users':
+                this.exportUsersToCSV(bot, chatId);
+                break;
+
+            case 'admin_filter_users':
+                bot.sendMessage(chatId, "Введите параметры фильтрации в формате: city=Москва&status=active");
+                break;
+
+            default:
+                bot.sendMessage(chatId, "Неизвестная команда.");
+                break;
+        }
     },
 
     /**
@@ -37,7 +102,7 @@ module.exports = {
             }
 
             // Формируем сообщение со статистикой
-            const statsMessage = await localization.getLocaleText(chatId, 'stats_message');
+            const statsMessage = await localization.getLocaleText(chatId, 'usage_stats');
             bot.sendMessage(chatId, statsMessage.replace("{total_users}", totalUsers));
         });
     },

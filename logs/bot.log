@@ -7,3 +7,116 @@
 [ERROR] 2025-02-06T00:09:30.378Z - Необработанная ошибка Promise: TypeError: localization.getUserLanguage is not a function: undefined
 [ERROR] 2025-02-06T00:12:52.177Z - Необработанная ошибка Promise: ReferenceError: description is not defined: undefined
 [ERROR] 2025-02-06T00:13:09.688Z - Необработанная ошибка Promise: ReferenceError: formattedDescription is not defined: undefined
+[ERROR] 2025-02-06T00:46:29.597Z - Ошибка при отправке статистики: database.get is not a function
+Stack trace: TypeError: database.get is not a function
+    at E:\available_bots\WeatherKelly\handlers\statsHandler.js:106:22
+    at new Promise (<anonymous>)
+    at Object.getUserStats (E:\available_bots\WeatherKelly\handlers\statsHandler.js:105:16)
+    at Object.handleStatsRequest (E:\available_bots\WeatherKelly\handlers\statsHandler.js:17:41)
+    at async TelegramBot.<anonymous> (E:\available_bots\WeatherKelly\bot.js:81:13)
+[ERROR] 2025-02-06T01:24:53.425Z - Необработанная ошибка Promise: ReferenceError: feedbackHandler is not defined: undefined
+[ERROR] 2025-02-06T01:28:02.452Z - Необработанная ошибка Promise: ReferenceError: action is not defined: undefined
+[INFO] 2025-02-06T01:46:24.539Z - Получен отзыв от пользователя inf0cry (ID: 653104212): 123
+[ERROR] 2025-02-06T02:58:11.300Z - Необработанное исключение: user is not defined
+Stack trace: ReferenceError: user is not defined
+    at Statement.<anonymous> (E:\available_bots\WeatherKelly\bot.js:152:30)
+    at Statement.replacement (E:\available_bots\WeatherKelly\node_modules\sqlite3\lib\trace.js:25:27)
+    at Statement.replacement (E:\available_bots\WeatherKelly\node_modules\sqlite3\lib\trace.js:25:27)
+[ERROR] 2025-02-06T03:19:30.422Z - Необработанное исключение: SQLITE_ERROR: near "username": syntax error
+Stack trace: Error: SQLITE_ERROR: near "username": syntax error
+[ERROR] 2025-02-06T03:23:20.518Z - Необработанное исключение: SQLITE_ERROR: near "username": syntax error
+Stack trace: Error: SQLITE_ERROR: near "username": syntax error
+[ERROR] 2025-02-06T03:24:49.462Z - Необработанное исключение: SQLITE_ERROR: near "username": syntax error
+Stack trace: Error: SQLITE_ERROR: near "username": syntax error
+[ERROR] 2025-02-06T03:25:30.810Z - Необработанное исключение: SQLITE_BUSY: database is locked
+Stack trace: Error: SQLITE_BUSY: database is locked
+[ERROR] 2025-02-06T03:26:32.882Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: query is too old and response timeout expired or query ID is invalid: undefined
+[ERROR] 2025-02-06T03:37:06.539Z - Необработанное исключение: SQLITE_ERROR: 5 values for 6 columns
+Stack trace: Error: SQLITE_ERROR: 5 values for 6 columns
+[ERROR] 2025-02-06T03:41:54.668Z - Необработанная ошибка Promise: ReferenceError: db is not defined: undefined
+[ERROR] 2025-02-06T05:25:38.767Z - Необработанная ошибка Promise: ReferenceError: status is not defined: undefined
+[ERROR] 2025-02-06T05:56:07.166Z - Необработанное исключение: callback is not a function
+Stack trace: TypeError: callback is not a function
+    at Statement.<anonymous> (E:\available_bots\WeatherKellyNew\database.js:148:13)
+    at Statement.replacement (E:\available_bots\WeatherKellyNew\node_modules\sqlite3\lib\trace.js:25:27)
+[ERROR] 2025-02-06T06:00:35.212Z - Необработанное исключение: callback is not a function
+Stack trace: TypeError: callback is not a function
+    at Statement.<anonymous> (E:\available_bots\WeatherKellyNew\database.js:148:13)
+    at Statement.replacement (E:\available_bots\WeatherKellyNew\node_modules\sqlite3\lib\trace.js:25:27)
+[ERROR] 2025-02-06T06:01:10.972Z - Необработанное исключение: callback is not a function
+Stack trace: TypeError: callback is not a function
+    at Statement.<anonymous> (E:\available_bots\WeatherKellyNew\database.js:148:13)
+    at Statement.replacement (E:\available_bots\WeatherKellyNew\node_modules\sqlite3\lib\trace.js:25:27)
+[ERROR] 2025-02-22T22:45:19.383Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: field "inline_keyboard" of the InlineKeyboardMarkup must be an Array of Arrays: undefined
+[ERROR] 2025-02-22T22:49:23.286Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: field "inline_keyboard" of the InlineKeyboardMarkup must be an Array of Arrays: undefined
+[ERROR] 2025-02-22T22:53:55.502Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: field "inline_keyboard" of the InlineKeyboardMarkup must be an Array of Arrays: undefined
+[ERROR] 2025-02-22T22:53:55.526Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: query is too old and response timeout expired or query ID is invalid: undefined
+[ERROR] 2025-02-22T22:54:06.008Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: field "inline_keyboard" of the InlineKeyboardMarkup must be an Array of Arrays: undefined
+[ERROR] 2025-02-22T23:05:44.646Z - Необработанная ошибка Promise: TypeError: subscriptionHandler.handleUnsubscribe is not a function: undefined
+[ERROR] 2025-02-22T23:44:53.215Z - Необработанная ошибка Promise: ReferenceError: ChatId is not defined: undefined
+[ERROR] 2025-02-22T23:47:00.414Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: query is too old and response timeout expired or query ID is invalid: undefined
+[ERROR] 2025-02-22T23:47:00.479Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: query is too old and response timeout expired or query ID is invalid: undefined
+[ERROR] 2025-02-22T23:47:18.179Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: query is too old and response timeout expired or query ID is invalid: undefined
+[ERROR] 2025-02-23T00:01:05.434Z - Необработанная ошибка Promise: ReferenceError: unitsHandler is not defined: undefined
+[ERROR] 2025-02-23T01:11:23.687Z - Необработанная ошибка Promise: ReferenceError: feelsLike is not defined: undefined
+[ERROR] 2025-02-23T02:21:17.742Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:28:51.926Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:35:26.664Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:44:00.133Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:45:23.178Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:52:47.314Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:55:54.083Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T02:57:32.233Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:02:07.526Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:02:55.487Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:06:05.480Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:08:00.326Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:09:58.370Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:10:15.514Z - Необработанное исключение: SQLITE_ERROR: near "wind_speed_unit": syntax error
+Stack trace: Error: SQLITE_ERROR: near "wind_speed_unit": syntax error
+[ERROR] 2025-02-23T03:13:41.597Z - Необработанная ошибка Promise: TypeError: unitsHandler.setWindSpeedUnit is not a function: undefined
+[ERROR] 2025-02-23T03:16:14.370Z - Необработанная ошибка Promise: TypeError: unitsHandler.setWindSpeedUnit is not a function: undefined
+[ERROR] 2025-02-23T03:44:47.918Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: query is too old and response timeout expired or query ID is invalid: undefined
+[ERROR] 2025-02-26T22:35:33.569Z - Необработанная ошибка Promise: Error: EFATAL: Error: form-data: ENOENT: no such file or directory, open 'E:\available_bots\WeatherKellyNew\users.csv': undefined
+[ERROR] 2025-02-26T22:47:01.604Z - Необработанная ошибка Promise: ReferenceError: getTemperatureUnitLabel is not defined: undefined
+[ERROR] 2025-02-27T03:16:00.407Z - Необработанная ошибка Promise: ReferenceError: config is not defined: undefined
+[ERROR] 2025-02-27T03:28:07.196Z - Необработанная ошибка Promise: TypeError: menuHandler.sendUsersList is not a function: undefined
+[ERROR] 2025-02-27T03:29:06.580Z - Необработанная ошибка Promise: TypeError: adminHandler.sendAdminPanel is not a function: undefined
+[ERROR] 2025-02-27T03:29:49.954Z - Необработанная ошибка Promise: ReferenceError: config is not defined: undefined
+[ERROR] 2025-02-27T03:31:28.265Z - Необработанная ошибка Promise: Error: EFATAL: Error: form-data: ENOENT: no such file or directory, open 'E:\available_bots\WeatherKellyNew\users.csv': undefined
+[ERROR] 2025-03-01T23:53:50.614Z - Необработанная ошибка Promise: ReferenceError: handleFutureWeather is not defined: undefined
+[ERROR] 2025-03-01T23:54:31.634Z - Необработанная ошибка Promise: TypeError: database.getUserCity is not a function: undefined
+[ERROR] 2025-03-01T23:57:37.308Z - Необработанная ошибка Promise: TypeError: database.getUserCity is not a function: undefined
+[ERROR] 2025-03-01T23:58:21.463Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'chat'): undefined
+[ERROR] 2025-03-02T00:00:11.382Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'chat'): undefined
+[ERROR] 2025-03-02T00:01:48.172Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'id'): undefined
+[ERROR] 2025-03-02T00:02:58.150Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'id'): undefined
+[ERROR] 2025-03-02T00:14:47.407Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'id'): undefined
+[ERROR] 2025-03-02T00:42:38.961Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'chat'): undefined
+[ERROR] 2025-03-02T00:44:44.041Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'chat'): undefined
+[ERROR] 2025-03-02T00:46:34.196Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'chat'): undefined
+[ERROR] 2025-03-02T00:51:05.694Z - Необработанная ошибка Promise: TypeError: Cannot read properties of undefined (reading 'chat'): undefined
+[NEW_USER] 2025-03-02T03:51:28.712Z - Новый пользователь!
+Chat ID: 7037495022
+Username: @adelamity
+Имя: Who am I?
+Фамилия: Не указано
+[NEW_USER] 2025-03-02T03:55:17.709Z - Новый пользователь!
+Chat ID: 7037495022
+Username: @adelamity
+Имя: Who am I?
+Фамилия: Не указано
+[ERROR] 2025-03-17T05:09:48.948Z - Необработанная ошибка Promise: Error: ETELEGRAM: 400 Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 2008: undefined
