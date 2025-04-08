@@ -86,6 +86,22 @@ bot.onText(/\/userstats/, (msg) => {
     adminHandler.handleStatsCommand(bot, msg);
 });
 
+// Обработка команды /settings для запуска мини-приложения
+bot.onText(/\/settings/, (msg) => {
+    const chatId = msg.chat.id;
+
+    // Отправляем кнопку с мини-приложением
+    bot.sendMessage(chatId, 'Откройте мини-приложение для настройки:', {
+        reply_markup: {
+            inline_keyboard: [
+                [{
+                    text: 'Открыть мини-приложение',
+                    web_app: { url: 'https://username.github.io/repository-name/' } // Замените на вашу ссылку
+                }]
+            ]
+        }
+    });
+});
 
 // Обработка callback-запросов
 bot.on('callback_query', async (query) => {
@@ -242,10 +258,20 @@ bot.on('callback_query', async (query) => {
     bot.answerCallbackQuery(query.id);
 });
 
-// Обработка текстовых сообщений
+// Обработка текстовых сообщений и данных из мини-приложения
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
+
+    // Проверяем, есть ли данные из мини-приложения
+    if (msg.web_app_data) {
+        const data = msg.web_app_data.data; // Получаем данные из мини-приложения
+        console.log(`[DEBUG] Получены данные из мини-приложения: ${data}`);
+
+        // Отправляем ответ пользователю
+        bot.sendMessage(chatId, `Получены данные из мини-приложения: ${data}`);
+        return; // Завершаем обработку, чтобы не выполнять остальной код
+    }
 
     // Получаем состояние пользователя
     database.getState(chatId, async (err, row) => {
@@ -255,30 +281,30 @@ bot.on('message', async (msg) => {
         }
 
         const currentState = row?.state;
+
         // Если пользователь находится в состоянии ожидания отзыва
         if (currentState === 'waiting_for_feedback') {
             await feedbackHandler.handleFeedbackMessage(bot, msg);
             return; // Завершаем обработку
         }
 
-    // Если это ответ на запрос времени
-    if (msg.reply_to_message) {
-        const replyText = msg.reply_to_message.text;
+        // Если это ответ на запрос времени
+        if (msg.reply_to_message) {
+            const replyText = msg.reply_to_message.text;
 
-        const enterNewTimePrompt = await localization.getLocaleText(chatId, 'enter_time_prompt');
-        if (replyText === enterNewTimePrompt) {
-            timeHandler.handleNewTime(bot, msg);
-            return; // Завершаем обработку
+            const enterNewTimePrompt = await localization.getLocaleText(chatId, 'enter_time_prompt');
+            if (replyText === enterNewTimePrompt) {
+                timeHandler.handleNewTime(bot, msg);
+                return; // Завершаем обработку
+            }
+
+            const enterCityPrompt = await localization.getLocaleText(chatId, 'enter_city_prompt');
+            if (replyText === enterCityPrompt) {
+                cityHandler.handleNewCity(bot, msg);
+                return; // Завершаем обработку
+            }
         }
-
-        const enterCityPrompt = await localization.getLocaleText(chatId, 'enter_city_prompt');
-        if (replyText === enterCityPrompt) {
-            cityHandler.handleNewCity(bot, msg);
-            return; // Завершаем обработку
-        }
-    }
-})
-
+    });
 });
 
 // Рассылка погоды по подписке
